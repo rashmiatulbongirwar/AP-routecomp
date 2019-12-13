@@ -1,0 +1,130 @@
+<!doctype html>
+
+<html ng-app="schedulerLogViewer">
+
+<head>
+  <!-- META -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Scheduler Log Viewer</title>
+
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-sanitize.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfPO_87dXlYxghy4FXwoR6lzA0TTKwazk&libraries=geometry"></script>
+  <script src="main.js"></script>
+</head>
+
+<!-- SET THE CONTROLLER -->
+
+<body ng-controller="mainController">
+  <div class="top-container">
+      <div class="top-heading">Routecomp</div>
+      <div class="container-img">
+        <img src="assets/114-512.png" height="80px" />
+      </div>
+  </div>
+  <div class="outer-container">
+
+      <div class="card-container">
+          <div class="card-l">
+              <label class="btn btn-lg btn-primary" ng-disabled="monitorLogDir">
+                  Select solution file 1
+                  <input type="file" file-on-change="fileSelected" style="display: none;" />
+               </label>
+               <google-map class="map"></google-map>
+          </div>
+          <div class="card-r">
+            <label class="btn btn-lg btn-primary" ng-disabled="monitorLogDir">
+                Select solution file 2
+                <input type="file" file-on-change="fileSelected" style="display: none;" />
+            </label>
+            <google-map class="map"></google-map>
+          </div>
+      </div>
+
+      <div class="row map-row">
+            <h3>Results:</h3>
+            <div class="solution-details">
+              <h4>Total runtime {{run.elapsedTime}}ms</h4>
+              <h4>Number of threads: {{run.numberOfThreads}}</h4>
+              <h2>Solution details:</h2>
+              <div>Solution runtime {{run.iterations[currentSolution -1].elapsedTime}}ms</div>
+              <h3>Batch Stats:</h3>
+              <div>Total distance: {{run.iterations[currentSolution -1].batchstats.totalDistance.toFixed(1)}} miles</div>
+              <div>Total time: {{run.iterations[currentSolution -1].batchstats.totalTime.toFixed(1)}} hours</div>
+              <div>Total cost: ${{run.iterations[currentSolution -1].batchstats.totalCost.toFixed(2)}}</div>
+              <div>Number of services: {{run.iterations[currentSolution -1].batchstats.numServices}}</div>
+              <div>Number of routes: {{run.iterations[currentSolution -1].batchstats.numRoutes}}</div>
+              <div ng-repeat="route in run.iterations[currentSolution -1].routes">
+                <br/>
+                <h3>Route details:</h3>
+                <br/>
+                <!-- <div>Vehicle ID: {{route.pod.vehicle.id}}</div> -->
+                <div>Cost per mile: ${{route.pod.vehicle.costPerMile.toFixed(2)}}</div>
+                <!-- <div>Driver ID: {{route.pod.driverId}}</div> -->
+                <div>Start location: {{route.startLocation}}</div>
+                <div>End Location: {{route.endLocation}}</div>
+                <!-- <div ng-repeat="passengerId in route.pod.passengerIds">
+                  <div>Passenger ID: {{passengerId}}</div>
+                </div> -->
+                <br/>
+                <h4>Service Orders:</h4>
+                <div class="service-order-details" ng-class="{selected : serviceOrderSelectedMap[serviceOrder.id]}" service-order-id="serviceOrder.id" ng-click="serviceOrderClicked(serviceOrder.id)" ng-mouseover="serviceOrderHover(serviceOrder.id)" ng-repeat="serviceOrder in route.serviceOrders">
+                  <br/>
+                  <div>ID: {{serviceOrder.id}}</div>
+                  <div>Service Location: {{serviceOrder.serviceLocation}}</div>
+                  <div>Duration (minutes): {{serviceOrder.duration}}</div>
+                  <div>Scheduled time: {{serviceOrder.scheduledTime}}</div>
+                  <div>Window start: {{serviceOrder.timeWindow.start}}</div>
+                  <div>Window end: {{serviceOrder.timeWindow.end}}</div>
+                  <div>Dev scratch:</div>
+                  <pre>{{serviceOrder.devScratch}}</pre>
+                </div>
+              </div>
+            </div>
+            
+          
+        </div>
+    <!-- <div class="row header-row">
+      <div class="col-lg-2">
+        <label class="btn btn-lg btn-primary" ng-disabled="monitorLogDir">
+          Select solution files
+          <input type="file" file-on-change="fileSelected" style="display: none;" />
+        </label>
+      </div>
+      <div class="col-lg-2 col-lg-offset-2">
+        <h2 style="margin: 0px; padding-top: 5px;">
+          <span ng-hide="!loadingRoutes" class="label label-primary">Loading routes... {{remainingRoutes}}</span>
+        </h2>
+      </div>
+    </div> -->
+
+    
+
+   <!--  <div class="row control-row">
+      <div class="col-lg-3">
+        <input id='slider' class="bar" type="range" ng-model="currentSolution" min="1" max="{{totalSolutions}}" ng-disabled="loadingRoutes"
+        />
+      </div>
+      <div class="col-lg-2 col-lg-offset-1 text-center">
+        <p>Solution {{currentSolution}} / {{totalSolutions}}</p>
+      </div>
+      <div class="col-lg-4">
+        <button ng-click="decrementSolution()" ng-disabled="loadingRoutes" type="button" class="btn btn-lg btn-primary">-</button>
+        <button ng-click="incrementSolution()" ng-disabled="loadingRoutes" type="button" class="btn btn-lg btn-primary">+</button>
+        <label for="incrementSize">Increment Size:</label>
+        <input type="text" id="incrementSize" ng-model="incrementSize" ng-trim="true" numeric-parser/>
+      </div>
+      <div class="col-lg-2">
+      </div> 
+    </div> -->
+  </div>
+</body>
+
+</html>
