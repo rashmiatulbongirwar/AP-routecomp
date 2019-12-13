@@ -10,28 +10,43 @@ app.directive('fileOnChange', function() {
   };
 });
 
-app.directive('googleMap', ['$timeout', function($timeout) {
+app.directive('googleMap', ['$timeout', "$rootScope",function($timeout, $rootScope) {
   return {
     restrict: 'E',
     templateUrl: 'google-map.html',
-    link: function ($scope, element) {
+    scope: {
+      mapname: '@'
+    },
+    link: function ($scope,element, attrs) {
 
       $timeout(function(){
-
-        $scope.googleMap = new google.maps.Map(element[0], {
+        let name = $scope.mapname;
+        $rootScope[name] = new google.maps.Map(element[0], {
           center: {lat: 33.446, lng: -112.359},
           zoom: 11
         });
+        // $scope.googleMap1 = new google.maps.Map(element[0], {
+        //   center: {lat: 33.446, lng: -112.359},
+        //   zoom: 11
+        // });
 
         google.maps.event.addDomListener(window, 'resize', function() {
           $timeout(function() {
-            let center = $scope.googleMap.getCenter();
-            google.maps.event.trigger($scope.googleMap, 'resize');
-            $scope.googleMap.setCenter(center);
+            let center = $rootScope[name].getCenter();
+            google.maps.event.trigger($rootScope[name], 'resize');
+            $rootScope[name].setCenter(center);
           });
         });
+        // google.maps.event.addDomListener(window, 'resize', function() {
+        //   $timeout(function() {
+        //     let center = $scope.googleMap1.getCenter();
+        //     google.maps.event.trigger($scope.googleMap1, 'resize');
+        //     $scope.googleMap1.setCenter(center);
+        //   });
+        // });
 
         $scope.directionsRenderers = [];
+        $scope.directionsRendererssecond =[];
       });
     }
   };
@@ -58,8 +73,8 @@ app.directive('numericParser', function() {
   };
 });
 
-app.controller('mainController', ['$scope','$timeout', '$http',
-  function($scope, $timeout, $http) {
+app.controller('mainController', ['$scope','$timeout', '$http',  '$rootScope',
+  function($scope, $timeout, $http, $rootScope) {
     let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
     let colors = [
       '#f68b2a',
@@ -90,13 +105,17 @@ app.controller('mainController', ['$scope','$timeout', '$http',
     ];
 
     let directionsRenderers = [];
+    let directionsRendererssecond =[];
     let markers = [];
+    let markerssecond =[];
     $scope.run = {};
+    $scope.runsecond ={};
     $scope.currentSolution = 0;
     $scope.incrementSize = 1;
     $scope.totalSolutions = 0;
     $scope.googleMapsError = '';
     $scope.loadingRoutes = false;
+    $scope.loadingRoutesSecond = false;
     $scope.serviceOrderSelectedMap = {};
     $scope.serviceOrderInfoMap = {};
     $scope.serviceOrderMarkerMap = {};
@@ -105,6 +124,18 @@ app.controller('mainController', ['$scope','$timeout', '$http',
     $scope.$watch('currentSolution', function () {
       displaySolution();
     });
+    $scope.$watch("currentSolutionsecond", function(){
+      displaySolutionSecond();
+    })
+
+    $scope.fileSelectedsecond = function(event){
+      console.log('File selected.');
+
+      $scope.currentSolutionsecond = 0;
+      $scope.runsecond = {};
+
+      readFilesecond(event.target.files[0]);
+    }
 
     $scope.fileSelected =  function(event) {
       console.log('File selected.');
@@ -152,6 +183,31 @@ app.controller('mainController', ['$scope','$timeout', '$http',
 
     $scope.serviceOrderHover = function() {
     };
+
+    function readFilesecond(file) {
+    
+      let reader = new FileReader();
+
+      reader.onload = function() {
+
+        let text = reader.result;
+        console.log('File read.');
+
+        let run = JSON.parse(text);
+        console.log('File parsed.');
+
+        $scope.runsecond = run;
+
+        $scope.$apply(function() {
+          $scope.totalSolutionsSecond = $scope.runsecond.iterations.length;
+          $scope.currentSolutionsecond = $scope.totalSolutionsSecond;
+          console.log('Read ' + $scope.totalSolutionsSecond + ' solutions from log file.');
+        });
+      };
+
+      console.log('Reading file ' + file.name);
+      reader.readAsText(file);
+    }
 
     function readFile(file) {
     
@@ -262,9 +318,9 @@ app.controller('mainController', ['$scope','$timeout', '$http',
       $scope.loadingRoutes = true;
 
       // fix for input type=range not updating
-      $timeout(function () {
-        document.querySelector('#slider').value = $scope.currentSolution;
-      });
+      // $timeout(function () {
+      //   document.querySelector('#slider').value = $scope.currentSolution;
+      // });
 
       let solution = $scope.run.iterations[index];
     
@@ -315,7 +371,7 @@ app.controller('mainController', ['$scope','$timeout', '$http',
                 fillOpacity: 1,
                 scale: 1.25
               },
-              map: $scope.googleMap
+              map: $rootScope.googleMap
             });
 
             var infoContent = 
@@ -358,7 +414,7 @@ app.controller('mainController', ['$scope','$timeout', '$http',
           directionsRenderers.push(directionsRenderer);
           callDirectionsService(directionRequest).then(function(response){
             directionsRenderer.setDirections(response);
-            directionsRenderer.setMap($scope.googleMap);
+            directionsRenderer.setMap($rootScope.googleMap);
             resolve();
           }).catch(function(err){
             reject(err);
@@ -370,6 +426,128 @@ app.controller('mainController', ['$scope','$timeout', '$http',
         console.log('Done loading');
         $scope.$apply(function(){
           $scope.loadingRoutes = false;
+        }); 
+      });
+    }
+    function displaySolutionSecond() {
+      console.log('In displaySolution()');
+    
+      let index = $scope.currentSolutionsecond - 1;
+      if(!$scope.runsecond.iterations || $scope.runsecond.iterations.length <= index || $scope.loadingRoutesSecond) {
+        return;
+      }
+
+      $scope.loadingRoutesSecond = true;
+
+      // fix for input type=range not updating
+      $timeout(function () {
+        document.querySelector('#slider').value = $scope.currentSolutionsecond;
+      });
+
+      let solution = $scope.runsecond.iterations[index];
+    
+      $scope.remainingRoutesecond = solution.routes.length;
+
+      // clear all directions
+      directionsRendererssecond.forEach(function(renderer) {
+        renderer.setMap(null);
+      });
+
+      directionsRendererssecond = [];
+
+      // clear all markers
+      markerssecond.forEach(function(marker){
+        marker.setMap(null);
+      });
+
+      markerssecond = [];
+
+      let routePromisessecond = [];
+      solution.routes.forEach(function(route, routeIndex) {
+        routePromisessecond.push(new Promise(function(resolve, reject){
+        
+          let directionRequest = {
+            waypoints: [stringToCoord(route.startLocation)]
+          };
+
+          route.serviceOrders.forEach((serviceOrder) => {
+            directionRequest.waypoints.push(stringToCoord(serviceOrder.serviceLocation));
+          });
+
+          directionRequest.waypoints.push(stringToCoord(route.endLocation));
+
+          let color = colors[routeIndex % colors.length];
+          let serviceOrderIndex = 1;
+          route.serviceOrders.forEach(function(serviceOrder) {
+
+            let routeLabel = getRouteLetter(routeIndex + 1) + (serviceOrderIndex);
+
+            let marker = new google.maps.Marker({
+              position: stringToCoord(serviceOrder.serviceLocation),
+              label: routeLabel,
+              icon: {
+                labelOrigin: new google.maps.Point(0, -30),
+                path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
+                strokeColor: color,
+                fillColor: color,
+                fillOpacity: 1,
+                scale: 1.25
+              },
+              map: $rootScope.googleMap1
+            });
+
+            var infoContent = 
+            '<div class="map-popup">' +
+              '<div>ID: ' + serviceOrder.id + '</div>' +
+              '<div>Service Location: ' + serviceOrder.serviceLocation + '</div>' +
+              '<div>Duration (minutes): ' + serviceOrder.duration + '</div>' +
+              '<div>Scheduled time: ' + serviceOrder.scheduledTime + '</div>' +
+              '<div>Window start: ' + serviceOrder.timeWindow.start + '</div>' +
+              '<div>Window end: ' + serviceOrder.timeWindow.end + '</div>' +
+              '<div>Dev scratch:</div>' +
+              '<pre>'  + serviceOrder.devScratch + '</pre>' +
+            '</div>';
+
+            let infoWindowsecond = new google.maps.InfoWindow({
+              content: infoContent,
+              disableAutoPan: true
+            });
+            
+            marker.addListener('click', function() {
+              $scope.serviceOrderClicked(serviceOrder.id);
+            });
+
+            $scope.serviceOrderInfoMap[serviceOrder.id] = infoWindowsecond;
+            $scope.serviceOrderMarkerMap[serviceOrder.id] = markerssecond;
+
+            markerssecond.push(marker);
+            serviceOrderIndex ++;
+          });
+
+          let directionsRendererssecond = new google.maps.DirectionsRenderer({
+            preserveViewport: true,
+            suppressMarkers: true,
+            polylineOptions: {
+              strokeColor: color,
+              strokeOpacity: 0.8
+            }
+          });
+    
+          directionsRendererssecond.push(directionsRendererssecond);
+          callDirectionsService(directionRequest).then(function(response){
+            directionsRenderer.setDirections(response);
+            directionsRenderer.setMap($rootScope.googleMap1);
+            resolve();
+          }).catch(function(err){
+            reject(err);
+          });         
+        }));
+      });
+
+      Promise.all(routePromisessecond).then(function(){
+        console.log('Done loading');
+        $scope.$apply(function(){
+          $scope.loadingRoutesSecond = false;
         }); 
       });
     }
