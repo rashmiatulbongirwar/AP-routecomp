@@ -22,12 +22,13 @@
 
 <!-- SET THE CONTROLLER -->
 
-<body ng-controller="mainController">
+<body ng-controller="mainController" class="container">
   <div class="top-container">
       <div class="top-heading">Routecomp</div>
       <div class="container-img">
         <img src="assets/114-512.png" height="80px" />
       </div>
+      
   </div>
   <div class="outer-container">
 
@@ -37,77 +38,109 @@
                   Select solution file 1
                   <input type="file" file-on-change="fileSelected" style="display: none;" />
                </label>
-               <google-map class="map"></google-map>
+               <google-map class="map" mapname="googleMap"></google-map>
           </div>
           <div class="card-r">
             <label class="btn btn-lg btn-primary" ng-disabled="monitorLogDir">
                 Select solution file 2
-                <input type="file" file-on-change="fileSelected" style="display: none;" />
+                <input type="file" file-on-change="fileSelectedsecond" style="display: none;" />
             </label>
-            <google-map class="map"></google-map>
+            <google-map class="map" mapname="googleMap1"></google-map>
           </div>
       </div>
-
-      <div class="row map-row">
-            <h3>Results:</h3>
-            <div class="solution-details">
-              <h4>Total runtime {{run.elapsedTime}}ms</h4>
-              <h4>Number of threads: {{run.numberOfThreads}}</h4>
-              <h2>Solution details:</h2>
-              <div>Solution runtime {{run.iterations[currentSolution -1].elapsedTime}}ms</div>
-              <h3>Batch Stats:</h3>
-              <div>Total distance: {{run.iterations[currentSolution -1].batchstats.totalDistance.toFixed(1)}} miles</div>
-              <div>Total time: {{run.iterations[currentSolution -1].batchstats.totalTime.toFixed(1)}} hours</div>
-              <div>Total cost: ${{run.iterations[currentSolution -1].batchstats.totalCost.toFixed(2)}}</div>
-              <div>Number of services: {{run.iterations[currentSolution -1].batchstats.numServices}}</div>
-              <div>Number of routes: {{run.iterations[currentSolution -1].batchstats.numRoutes}}</div>
-              <div ng-repeat="route in run.iterations[currentSolution -1].routes">
-                <br/>
-                <h3>Route details:</h3>
-                <br/>
-                <!-- <div>Vehicle ID: {{route.pod.vehicle.id}}</div> -->
-                <div>Cost per mile: ${{route.pod.vehicle.costPerMile.toFixed(2)}}</div>
-                <!-- <div>Driver ID: {{route.pod.driverId}}</div> -->
-                <div>Start location: {{route.startLocation}}</div>
-                <div>End Location: {{route.endLocation}}</div>
-                <!-- <div ng-repeat="passengerId in route.pod.passengerIds">
-                  <div>Passenger ID: {{passengerId}}</div>
-                </div> -->
-                <br/>
-                <h4>Service Orders:</h4>
-                <div class="service-order-details" ng-class="{selected : serviceOrderSelectedMap[serviceOrder.id]}" service-order-id="serviceOrder.id" ng-click="serviceOrderClicked(serviceOrder.id)" ng-mouseover="serviceOrderHover(serviceOrder.id)" ng-repeat="serviceOrder in route.serviceOrders">
-                  <br/>
-                  <div>ID: {{serviceOrder.id}}</div>
-                  <div>Service Location: {{serviceOrder.serviceLocation}}</div>
-                  <div>Duration (minutes): {{serviceOrder.duration}}</div>
-                  <div>Scheduled time: {{serviceOrder.scheduledTime}}</div>
-                  <div>Window start: {{serviceOrder.timeWindow.start}}</div>
-                  <div>Window end: {{serviceOrder.timeWindow.end}}</div>
-                  <div>Dev scratch:</div>
-                  <pre>{{serviceOrder.devScratch}}</pre>
-                </div>
-              </div>
-            </div>
-            
-          
+      
+    </div>
+    <div class="row">
+      
+      <div>
+        <!-- <h4>Total runtime {{run.elapsedTime}}ms</h4> -->
+        <!-- <h4>Number of threads: {{run.numberOfThreads}}</h4> -->
+        <!-- <h2>Solution details:</h2>
+        <div>Solution runtime {{run.iterations[currentSolution -1].elapsedTime}}ms</div> -->
+        <Strong>Batch Stats:</strong>
+        <div class="row">
+        <div class="col-sm-6">Total distance: {{run.iterations[currentSolution -1].batchstats.totalDistance.toFixed(1)}} miles</div>
+        <div class="col-sm-6">Total distance: {{runsecond.iterations[currentSolutionsecond -1].batchstats.totalDistance.toFixed(1)}} miles</div>
         </div>
-    <!-- <div class="row header-row">
-      <div class="col-lg-2">
-        <label class="btn btn-lg btn-primary" ng-disabled="monitorLogDir">
-          Select solution files
-          <input type="file" file-on-change="fileSelected" style="display: none;" />
-        </label>
+        <div class="row">
+        <div class="col-sm-6">Total time: {{run.iterations[currentSolution -1].batchstats.totalTime.toFixed(1)}} hours</div>
+        <div class="col-sm-6">Total time: {{runsecond.iterations[currentSolutionsecond -1].batchstats.totalTime.toFixed(1)}} hours</div>
       </div>
-      <div class="col-lg-2 col-lg-offset-2">
-        <h2 style="margin: 0px; padding-top: 5px;">
-          <span ng-hide="!loadingRoutes" class="label label-primary">Loading routes... {{remainingRoutes}}</span>
-        </h2>
+      <div class="row">
+        <div class="col-sm-6">Total cost: ${{run.iterations[currentSolution -1].batchstats.totalCost.toFixed(2)}}</div>
+        <div class="col-sm-6">Total cost: ${{runsecond.iterations[currentSolutionsecond -1].batchstats.totalCost.toFixed(2)}}</div>
       </div>
-    </div> -->
+      <div class="row">
+        <div class="col-sm-6">Number of services: {{run.iterations[currentSolution -1].batchstats.numServices}}</div>
+        <div class="col-sm-6">Number of services: {{runsecond.iterations[currentSolutionsecond -1].batchstats.numServices}}</div>
+      </div>
+      <div class="row">
+        <div class="col-sm-6">Number of routes: {{run.iterations[currentSolution -1].batchstats.numRoutes}}</div>
+        <div class="col-sm-6">Number of routes: {{runsecond.iterations[currentSolutionsecond -1].batchstats.numRoutes}}</div>
+      </div>
+      <div class="row">
+        <div class ="col-sm-6" ng-repeat="route in run.iterations[currentSolution -1].routes">
+          <br/>
+          <strong>Route details:</strong>
+          <br/>
+          <!-- <div>Vehicle ID: {{route.pod.vehicle.id}}</div> -->
+          <div>Cost per mile: ${{route.pod.vehicle.costPerMile.toFixed(2)}}</div>
+          <!-- <div>Driver ID: {{route.pod.driverId}}</div> -->
+          <div>Start location: {{route.startLocation}}</div>
+          <div>End Location: {{route.endLocation}}</div>
+          <!-- <div ng-repeat="passengerId in route.pod.passengerIds">
+            <div>Passenger ID: {{passengerId}}</div>
+          </div> -->
+          <br/>
+          <!-- <h4>Service Orders:</h4> -->
+          <!-- <div class="service-order-details" ng-class="{selected : serviceOrderSelectedMap[serviceOrder.id]}" service-order-id="serviceOrder.id" ng-click="serviceOrderClicked(serviceOrder.id)" ng-mouseover="serviceOrderHover(serviceOrder.id)" ng-repeat="serviceOrder in route.serviceOrders">
+            <br/>
+            <div>ID: {{serviceOrder.id}}</div>
+            <div>Service Location: {{serviceOrder.serviceLocation}}</div>
+            <div>Duration (minutes): {{serviceOrder.duration}}</div>
+            <div>Scheduled time: {{serviceOrder.scheduledTime}}</div>
+            <div>Window start: {{serviceOrder.timeWindow.start}}</div>
+            <div>Window end: {{serviceOrder.timeWindow.end}}</div>
+            <div>Dev scratch:</div>
+            <pre>{{serviceOrder.devScratch}}</pre>
+          </div> -->
+        </div>
+        <div class ="col-sm-6" ng-repeat="route in runsecond.iterations[currentSolutionsecond -1].routes">
+          <br/>
+          <strong>Route details:</strong>
+          <br/>
+          <!-- <div>Vehicle ID: {{route.pod.vehicle.id}}</div> -->
+          <div>Cost per mile: ${{route.pod.vehicle.costPerMile.toFixed(2)}}</div>
+          <!-- <div>Driver ID: {{route.pod.driverId}}</div> -->
+          <div>Start location: {{route.startLocation}}</div>
+          <div>End Location: {{route.endLocation}}</div>
+          <!-- <div ng-repeat="passengerId in route.pod.passengerIds">
+            <div>Passenger ID: {{passengerId}}</div>
+          </div> -->
+          <br/>
+          <!-- <h4>Service Orders:</h4> -->
+          <!-- <div class="service-order-details" ng-class="{selected : serviceOrderSelectedMap[serviceOrder.id]}" service-order-id="serviceOrder.id" ng-click="serviceOrderClicked(serviceOrder.id)" ng-mouseover="serviceOrderHover(serviceOrder.id)" ng-repeat="serviceOrder in route.serviceOrders">
+            <br/>
+            <div>ID: {{serviceOrder.id}}</div>
+            <div>Service Location: {{serviceOrder.serviceLocation}}</div>
+            <div>Duration (minutes): {{serviceOrder.duration}}</div>
+            <div>Scheduled time: {{serviceOrder.scheduledTime}}</div>
+            <div>Window start: {{serviceOrder.timeWindow.start}}</div>
+            <div>Window end: {{serviceOrder.timeWindow.end}}</div>
+            <div>Dev scratch:</div>
+            <pre>{{serviceOrder.devScratch}}</pre>
+          </div> -->
+        </div>
+      </div>
+      </div>
+      
+    
+  </div>
+      
 
     
 
-   <!--  <div class="row control-row">
+   <!-- <div class="row control-row">
       <div class="col-lg-3">
         <input id='slider' class="bar" type="range" ng-model="currentSolution" min="1" max="{{totalSolutions}}" ng-disabled="loadingRoutes"
         />
@@ -122,9 +155,9 @@
         <input type="text" id="incrementSize" ng-model="incrementSize" ng-trim="true" numeric-parser/>
       </div>
       <div class="col-lg-2">
-      </div> 
-    </div> -->
-  </div>
+      </div>  
+    </div> 
+   -->
 </body>
 
 </html>
